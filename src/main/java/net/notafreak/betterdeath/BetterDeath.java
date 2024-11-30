@@ -54,15 +54,15 @@ public class BetterDeath
             player.setHealth(20.0F);
             player.clearFire();
             player.removeAllEffects();
-
-            player.getInventory().clearContent(); // Optional: Clear inventory if needed
+            player.getFoodData().setFoodLevel(20);
+            player.getFoodData().setSaturation(0);
             
             BlockPos pos = player.getRespawnPosition();
             if(pos == null) {
                 pos = player.serverLevel().getSharedSpawnPos();
             }
             Vec3 respawnPos = new Vec3(pos.getX(), pos.getY(), pos.getZ());
-            player.teleportTo(player.serverLevel(), respawnPos.x, respawnPos.y, respawnPos.z, 0, 0);
+            player.teleportTo(player.serverLevel(), respawnPos.x, respawnPos.y, respawnPos.z + 1, 0, 0);
             LOGGER.info("respawned player");
             BlackScreenHandler.triggerBlackScreen();
         }
