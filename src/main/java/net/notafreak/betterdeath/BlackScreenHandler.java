@@ -5,6 +5,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.notafreak.betterdeath.config.ClientConfig;
+import net.notafreak.betterdeath.config.CommonConfig;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -15,7 +16,6 @@ import net.minecraft.server.level.ServerPlayer;
 public class BlackScreenHandler {
 
     private static int blackScreenTimer = 0; // Ticks remaining
-    private static final int BLACK_SCREEN_DURATION = 100; // Configurable duration in ticks
 
     @SubscribeEvent
     public static void onPlayerRespawn(TickEvent.PlayerTickEvent event) {
@@ -54,6 +54,6 @@ public class BlackScreenHandler {
     } 
 
     public static void triggerBlackScreen(ServerPlayer player) {
-        blackScreenTimer = BLACK_SCREEN_DURATION;
+        blackScreenTimer = CommonConfig.blackScreenDuration.get();
     }
 }
