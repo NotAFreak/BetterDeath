@@ -27,10 +27,11 @@ public class DeathScreenHandler {
     @SubscribeEvent
     public static void onRenderOverlay(RenderGuiOverlayEvent.Pre event) {
         if (deathScreenTimer > 0) {
+            
             GuiGraphics guiGraphics = event.getGuiGraphics();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            
+
             // Draw a black rectangle across the entire screen
             int screenWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
             int screenHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
@@ -50,6 +51,12 @@ public class DeathScreenHandler {
             guiGraphics.pose().translate(0, 0, -9000);
             
             RenderSystem.disableBlend();
+            
+            // in the future i want to try and get this only executing once instead of each render update
+            Minecraft.getInstance().getSoundManager().pause();
+        } else {
+            // sounds may continue
+            Minecraft.getInstance().getSoundManager().resume();
         }
     }
 
