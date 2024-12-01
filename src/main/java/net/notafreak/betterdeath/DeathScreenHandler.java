@@ -9,7 +9,6 @@ import net.notafreak.betterdeath.config.CommonConfig;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.server.level.ServerPlayer;
 
 @Mod.EventBusSubscriber(modid = "betterdeath", bus = Mod.EventBusSubscriber.Bus.FORGE)
@@ -19,7 +18,7 @@ public class DeathScreenHandler {
 
     @SubscribeEvent
     public static void onPlayerRespawn(TickEvent.PlayerTickEvent event) {
-        if (event.player.level().isClientSide && event.player.isAlive() && deathScreenTimer > 0) {
+        if (event.player.level.isClientSide && event.player.isAlive() && deathScreenTimer > 0) {
             deathScreenTimer--;
         }
     }
@@ -27,7 +26,7 @@ public class DeathScreenHandler {
     @SubscribeEvent
     public static void onRenderOverlay(RenderGuiOverlayEvent.Pre event) {
         if (deathScreenTimer > 0) {
-            GuiGraphics guiGraphics = event.getGuiGraphics();
+            // Graphics guiGraphics = event.getGuiGraphics();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             
