@@ -8,7 +8,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageSources;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.phys.Vec3;
 
 import com.mojang.logging.LogUtils;
@@ -53,23 +57,8 @@ public class BetterDeath {
     @SubscribeEvent
     public void onPlayerDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
-            event.setCanceled(true);
-            LOGGER.info("these are thrilling times, the player has fucking died");
-
-            // Reset health and other attributes
-            player.setHealth(20.0F);
-            player.clearFire();
-            player.removeAllEffects();
-            player.getFoodData().setFoodLevel(20);
-            player.getFoodData().setSaturation(0);
-            
-            BlockPos pos = player.getRespawnPosition();
-            if(pos == null) {
-                pos = player.serverLevel().getSharedSpawnPos();
-            }
-            Vec3 respawnPos = new Vec3(pos.getX(), pos.getY(), pos.getZ());
-            player.teleportTo(player.serverLevel(), respawnPos.x, respawnPos.y, respawnPos.z + 1, 0, 0);
-            LOGGER.info("respawned player");
+            //event.setCanceled(true);
+            LOGGER.info("these are thrilling times, the player has died");
             BlackScreenHandler.triggerBlackScreen(player);
         }
     }
@@ -77,6 +66,11 @@ public class BetterDeath {
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event)
     {
+        ServerLevel overworld = event.getServer().overworld();
 
+        if (overworld != null) {
+            // Set the instant respawn gamerule
+            overworld.getGameRules().getRule(GameRules.RULE_DO_IMMEDIATE_RESPAWN).set(true, event.getServer());
+        }
     }
 }
