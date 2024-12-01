@@ -2,7 +2,6 @@ package net.notafreak.betterdeath.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 
-// @Mod.EventBusSubscriber(modid = BetterDeath.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientConfig {
 	public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 	public static ForgeConfigSpec SPEC = null;

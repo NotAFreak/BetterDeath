@@ -14,7 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
 @Mod.EventBusSubscriber(modid = "betterdeath", bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class BlackScreenHandler {
 
-    private static int blackScreenTimer = 0; // Ticks remaining for black screen
+    private static int blackScreenTimer = 0; // Ticks remaining
     private static final int BLACK_SCREEN_DURATION = 100; // Configurable duration in ticks
 
     @SubscribeEvent
@@ -26,17 +26,18 @@ public class BlackScreenHandler {
 
     @SubscribeEvent
     public static void onRenderOverlay(RenderGuiOverlayEvent.Pre event) {
-        if (blackScreenTimer > 0) { // Your condition for rendering the overlay
+        if (blackScreenTimer > 0) {
             GuiGraphics guiGraphics = event.getGuiGraphics();
-            RenderSystem.enableBlend(); // Enable blending for the overlay
-            RenderSystem.defaultBlendFunc(); // Use default blend mode
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
             
             // Draw a black rectangle across the entire screen
             int screenWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
             int screenHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
             guiGraphics.fill(0, 0, screenWidth, screenHeight, ConstructColorHex(ClientConfig.deathScreenR.get(), ClientConfig.deathScreenG.get(), ClientConfig.deathScreenB.get(), 255)); // 0xAA for semi-transparency
             
-            RenderSystem.disableBlend(); // Disable blending when done
+            
+            RenderSystem.disableBlend();
         }
     }
 
@@ -54,6 +55,5 @@ public class BlackScreenHandler {
 
     public static void triggerBlackScreen(ServerPlayer player) {
         blackScreenTimer = BLACK_SCREEN_DURATION;
-        // player is invincible whilst black screen
     }
 }

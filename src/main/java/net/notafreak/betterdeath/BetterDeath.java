@@ -10,14 +10,10 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.level.GameRules;
-import net.minecraft.world.phys.Vec3;
 
 import com.mojang.logging.LogUtils;
 
-import net.minecraft.core.BlockPos;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -34,8 +30,7 @@ public class BetterDeath {
     public static final String MODID = "betterdeath";
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public BetterDeath()
-    {
+    public BetterDeath() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         modEventBus.addListener(this::commonSetup);
@@ -50,22 +45,19 @@ public class BetterDeath {
     private void clientSetup(FMLClientSetupEvent event) {
         // we do fuck all lol
     }
-    private void commonSetup(final FMLCommonSetupEvent event)
-    {
+    private void commonSetup(final FMLCommonSetupEvent event) {
 
     }
     @SubscribeEvent
     public void onPlayerDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
-            //event.setCanceled(true);
             LOGGER.info("these are thrilling times, the player has died");
             BlackScreenHandler.triggerBlackScreen(player);
         }
     }
 
     @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event)
-    {
+    public void onServerStarting(ServerStartingEvent event) {
         ServerLevel overworld = event.getServer().overworld();
 
         if (overworld != null) {
