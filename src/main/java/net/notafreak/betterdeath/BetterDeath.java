@@ -52,7 +52,7 @@ public class BetterDeath {
     public void onPlayerDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             LOGGER.info("these are thrilling times, the player has died");
-            BlackScreenHandler.triggerBlackScreen(player);
+            DeathScreenHandler.triggerDeathScreen(player);
         }
     }
 
