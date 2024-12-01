@@ -1,12 +1,8 @@
 package net.notafreak.betterdeath.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.common.Mod;
-import net.notafreak.betterdeath.BetterDeath;
 
-// An example config class. This is not required, but it's a good idea to have one to keep your config organized.
-// Demonstrates how to use Forge's config APIs
-@Mod.EventBusSubscriber(modid = BetterDeath.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+// @Mod.EventBusSubscriber(modid = BetterDeath.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientConfig {
 	public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 	public static ForgeConfigSpec SPEC = null;
