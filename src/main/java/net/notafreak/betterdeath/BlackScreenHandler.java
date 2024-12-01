@@ -34,8 +34,20 @@ public class BlackScreenHandler {
             // Draw a black rectangle across the entire screen
             int screenWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
             int screenHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
-            guiGraphics.fill(0, 0, screenWidth, screenHeight, ConstructColorHex(ClientConfig.deathScreenR.get(), ClientConfig.deathScreenG.get(), ClientConfig.deathScreenB.get(), 255)); // 0xAA for semi-transparency
-            
+            guiGraphics.pose().translate(0, 0, 9000);
+            guiGraphics.fill(
+                0, 0, 
+                screenWidth, screenHeight, 
+                ConstructColorHex(
+                    ClientConfig.deathScreenR.get(), 
+                    ClientConfig.deathScreenG.get(), 
+                    ClientConfig.deathScreenB.get(), 
+                    255
+                )
+            ); // 0xAA for semi-transparency
+
+            // reset posing
+            guiGraphics.pose().translate(0, 0, -9000);
             
             RenderSystem.disableBlend();
         }
