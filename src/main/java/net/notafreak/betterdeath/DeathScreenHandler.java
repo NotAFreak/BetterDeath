@@ -13,20 +13,20 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.server.level.ServerPlayer;
 
 @Mod.EventBusSubscriber(modid = "betterdeath", bus = Mod.EventBusSubscriber.Bus.FORGE)
-public class BlackScreenHandler {
+public class DeathScreenHandler {
 
-    private static int blackScreenTimer = 0; // Ticks remaining
+    private static int deathScreenTimer = 0; // Ticks remaining
 
     @SubscribeEvent
     public static void onPlayerRespawn(TickEvent.PlayerTickEvent event) {
-        if (event.player.level().isClientSide && event.player.isAlive() && blackScreenTimer > 0) {
-            blackScreenTimer--;
+        if (event.player.level().isClientSide && event.player.isAlive() && deathScreenTimer > 0) {
+            deathScreenTimer--;
         }
     }
 
     @SubscribeEvent
     public static void onRenderOverlay(RenderGuiOverlayEvent.Pre event) {
-        if (blackScreenTimer > 0) {
+        if (deathScreenTimer > 0) {
             GuiGraphics guiGraphics = event.getGuiGraphics();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
@@ -44,7 +44,7 @@ public class BlackScreenHandler {
                     ClientConfig.deathScreenB.get(), 
                     255
                 )
-            ); // 0xAA for semi-transparency
+            );
 
             // reset posing
             guiGraphics.pose().translate(0, 0, -9000);
@@ -65,7 +65,7 @@ public class BlackScreenHandler {
         return (A << 24) | (R << 16) | (G << 8) | B;
     } 
 
-    public static void triggerBlackScreen(ServerPlayer player) {
-        blackScreenTimer = CommonConfig.blackScreenDuration.get();
+    public static void triggerDeathScreen(ServerPlayer player) {
+        deathScreenTimer = CommonConfig.deathScreenDuration.get();
     }
 }
