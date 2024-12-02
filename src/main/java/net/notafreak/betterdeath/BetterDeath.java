@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 public class BetterDeath {
     public static final String NAME = "Better Death";
     public static final String MODID = "betterdeath";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     public BetterDeath() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
