@@ -62,7 +62,9 @@ public class BetterDeath {
 
         if (overworld != null) {
             // Set the instant respawn gamerule
-            overworld.getGameRules().getRule(GameRules.RULE_DO_IMMEDIATE_RESPAWN).set(true, event.getServer());
+            if(CommonConfig.forceImmediateRespawn.get()) {
+                overworld.getGameRules().getRule(GameRules.RULE_DO_IMMEDIATE_RESPAWN).set(true, event.getServer());
+            }
         }
     }
 }

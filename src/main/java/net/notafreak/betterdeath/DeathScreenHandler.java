@@ -1,11 +1,5 @@
 package net.notafreak.betterdeath;
 
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.notafreak.betterdeath.config.ClientConfig;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,10 +8,15 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.notafreak.betterdeath.config.ClientConfig;
 
 @Mod.EventBusSubscriber(modid = "betterdeath", bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class DeathScreenHandler {
-
+    
     public static final Map<String, AffectedPlayerData> affectedPlayers = new HashMap<>(); // Username, data
 
     @SubscribeEvent
@@ -82,9 +81,6 @@ public class DeathScreenHandler {
 
     public static void triggerDeathScreen(ServerPlayer player) {
         affectedPlayers.put(player.getName().getString(), new AffectedPlayerData());
-    }
-
-    public static class AffectedPlayerData {
-        public int deathScreenTimer = 200; // Adjust this for desired screen duration (200 ticks = 10 seconds)
+        
     }
 }
