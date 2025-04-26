@@ -8,7 +8,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameType;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.common.ForgeConfig.Server;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -44,7 +46,22 @@ public class DeathScreenHandler {
         if (data != null) {
             data.deathScreenTimer--;
             if (data.deathScreenTimer <= 0) {
+                // Make sure we're executing from the server first
+                if(!event.player.level().isClientSide()) {
+                    ServerPlayer player = ((ServerPlayer)event.player);
+                    
+                    // Switch the player back to their previous gamemode
+                    player.setGameMode(affectedPlayers.get(username).previousGameType);
+                }
+
                 affectedPlayers.remove(username);
+            }
+            
+            // Force the player to not be able to move
+            if(!event.player.level().isClientSide()) {
+                ServerPlayer player = ((ServerPlayer)event.player);
+                player.setDeltaMovement(0, 0, 0);
+                player.hurtMarked = true;                
             }
         }
     }
@@ -98,8 +115,13 @@ public class DeathScreenHandler {
 
     // Used for server
     public static void triggerDeathScreen(ServerPlayer player) {
-        affectedPlayers.put(player.getName().getString(), new AffectedPlayerData());
+        // Switch the player to spectator here
+        GameType prevGameType = player.gameMode.getGameModeForPlayer();
+
+        affectedPlayers.put(player.getName().getString(), new AffectedPlayerData(prevGameType));
         PacketHandler.sendToPlayer(new S2CdeathNotifyPacket(CommonConfig.deathScreenDuration.get()), player);
+
+        player.setGameMode(GameType.SPECTATOR);
     }
 
     // Used for client
@@ -110,7 +132,8 @@ public class DeathScreenHandler {
         }
 
         String username = mc.player.getName().getString();
-        AffectedPlayerData data = new AffectedPlayerData();
+
+        AffectedPlayerData data = new AffectedPlayerData(null); // Passed default to player data because it won't matter for clients
         data.deathScreenTimer = (int) duration;
         affectedPlayers.put(username, data);
     }
