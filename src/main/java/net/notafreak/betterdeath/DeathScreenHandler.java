@@ -7,6 +7,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
@@ -24,38 +25,28 @@ public class DeathScreenHandler {
     
     public static final Map<String, AffectedPlayerData> affectedPlayers = new HashMap<>(); // Username, data
 
-    
-
-    /*@SubscribeEvent
-    public static void onPlayerRespawn(TickEvent.PlayerTickEvent event) {
-        if (event.player.level().isClientSide()) return; // Only process on the server side
-        String username = event.player.getName().getString();
-        AffectedPlayerData data = affectedPlayers.get(username);
-        if (data != null) {
-            data.deathScreenTimer--;
-            if (data.deathScreenTimer <= 0) {
-                affectedPlayers.remove(username); // Remove the player if timer ends
-            }
-        }
-    }*/
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
         String username = event.player.getName().getString();
         AffectedPlayerData data = affectedPlayers.get(username);
     
         if (data != null) {
-            data.deathScreenTimer--;
             if (data.deathScreenTimer <= 0) {
-                // Make sure we're executing from the server first
+                ServerPlayer player = null;
                 if(!event.player.level().isClientSide()) {
-                    ServerPlayer player = ((ServerPlayer)event.player);
-                    
+                    player = ((ServerPlayer)event.player);
+
                     // Switch the player back to their previous gamemode
                     player.setGameMode(affectedPlayers.get(username).previousGameType);
+                    BetterDeath.LOGGER.info("Reset to previous gamemode (" + affectedPlayers.get(username).previousGameType + ")");
+                    affectedPlayers.remove(username);
+                } else {
+                    BetterDeath.LOGGER.info("death screen timer up but we're on the client");
                 }
 
-                affectedPlayers.remove(username);
             }
+
+            data.deathScreenTimer--;
             
             // Force the player to not be able to move
             if(!event.player.level().isClientSide()) {
@@ -65,6 +56,7 @@ public class DeathScreenHandler {
             }
         }
     }
+    
 
     @SubscribeEvent
     public static void onRenderOverlay(RenderGuiOverlayEvent.Pre event) {
@@ -73,7 +65,7 @@ public class DeathScreenHandler {
 
         String username = mc.player.getName().getString();
         AffectedPlayerData data = affectedPlayers.get(username);
-        if (data != null && data.deathScreenTimer > 0) {
+        if (data != null) {
             GuiGraphics guiGraphics = event.getGuiGraphics();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
@@ -81,6 +73,7 @@ public class DeathScreenHandler {
             // Draw a black rectangle across the entire screen
             int screenWidth = mc.getWindow().getGuiScaledWidth();
             int screenHeight = mc.getWindow().getGuiScaledHeight();
+            // Try and render over everything
             guiGraphics.pose().translate(0, 0, 9000);
             guiGraphics.fill(
                 0, 0,
