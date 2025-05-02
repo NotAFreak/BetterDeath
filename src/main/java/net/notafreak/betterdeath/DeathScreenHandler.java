@@ -11,7 +11,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.common.ForgeConfig.Server;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -110,6 +109,8 @@ public class DeathScreenHandler {
     public static void triggerDeathScreen(ServerPlayer player) {
         // Switch the player to spectator here
         GameType prevGameType = player.gameMode.getGameModeForPlayer();
+        
+        prevGameType.name(); // ----------------------------------------------------------------------------------------------------- DEBUG PURPOSES
 
         affectedPlayers.put(player.getName().getString(), new AffectedPlayerData(prevGameType));
         PacketHandler.sendToPlayer(new S2CdeathNotifyPacket(CommonConfig.deathScreenDuration.get()), player);
@@ -124,9 +125,12 @@ public class DeathScreenHandler {
             return;
         }
 
-        String username = mc.player.getName().getString();
-
-        AffectedPlayerData data = new AffectedPlayerData(null); // Passed default to player data because it won't matter for clients
+        LocalPlayer lPlayer = mc.player;
+        ServerPlayer sPlayer = lPlayer.getServer().getPlayerList().getPlayer(lPlayer.getUUID());
+        GameType prevGameType = sPlayer.gameMode.getGameModeForPlayer();
+        String username = lPlayer.getName().getString();
+        AffectedPlayerData data = new AffectedPlayerData(prevGameType);
+        
         data.deathScreenTimer = (int) duration;
         affectedPlayers.put(username, data);
     }
