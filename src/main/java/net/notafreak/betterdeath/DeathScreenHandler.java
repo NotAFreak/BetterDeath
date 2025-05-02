@@ -110,8 +110,6 @@ public class DeathScreenHandler {
         // Switch the player to spectator here
         GameType prevGameType = player.gameMode.getGameModeForPlayer();
         
-        prevGameType.name(); // ----------------------------------------------------------------------------------------------------- DEBUG PURPOSES
-
         affectedPlayers.put(player.getName().getString(), new AffectedPlayerData(prevGameType));
         PacketHandler.sendToPlayer(new S2CdeathNotifyPacket(CommonConfig.deathScreenDuration.get()), player);
 
