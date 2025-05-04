@@ -11,8 +11,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.common.ForgeConfig.Server;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.notafreak.betterdeath.config.ClientConfig;
@@ -31,6 +31,19 @@ public class DeathScreenHandler {
         AffectedPlayerData data = affectedPlayers.get(username);
     
         if (data != null) {
+
+            // Force the player to not be able to move
+            if(!event.player.level().isClientSide()) {
+                ServerPlayer player = ((ServerPlayer)event.player);
+                player.setDeltaMovement(0, 0, 0);
+                if(affectedPlayers.get(username).respawnPos != null) {
+                    player.teleportTo(affectedPlayers.get(username).respawnPos.x, affectedPlayers.get(username).respawnPos.y, affectedPlayers.get(username).respawnPos.z);
+                }
+                player.setXRot(0);
+                player.setYRot(player.getRespawnAngle());
+                player.hurtMarked = true;
+            }
+
             if (data.deathScreenTimer <= 0) {
                 ServerPlayer player = null;
                 if(!event.player.level().isClientSide()) {
@@ -47,13 +60,6 @@ public class DeathScreenHandler {
             }
 
             data.deathScreenTimer--;
-            
-            // Force the player to not be able to move
-            if(!event.player.level().isClientSide()) {
-                ServerPlayer player = ((ServerPlayer)event.player);
-                player.setDeltaMovement(0, 0, 0);
-                player.hurtMarked = true;                
-            }
         }
     }
     
@@ -98,6 +104,12 @@ public class DeathScreenHandler {
         }
     }
 
+    //required to easily get the position the player should spawn at
+    @SubscribeEvent
+    public static void onPlayerRespawn(PlayerRespawnEvent event) {
+        affectedPlayers.get(event.getEntity().getName().getString()).respawnPos = event.getEntity().position();
+    }
+
     public static int ConstructColorHex(int R, int G, int B, int A) {
         R = Math.max(0, Math.min(255, R));
         G = Math.max(0, Math.min(255, G));
@@ -110,7 +122,7 @@ public class DeathScreenHandler {
     public static void triggerDeathScreen(ServerPlayer player) {
         // Switch the player to spectator here
         GameType prevGameType = player.gameMode.getGameModeForPlayer();
-
+        
         affectedPlayers.put(player.getName().getString(), new AffectedPlayerData(prevGameType));
         PacketHandler.sendToPlayer(new S2CdeathNotifyPacket(CommonConfig.deathScreenDuration.get()), player);
 
@@ -124,9 +136,12 @@ public class DeathScreenHandler {
             return;
         }
 
-        String username = mc.player.getName().getString();
-
-        AffectedPlayerData data = new AffectedPlayerData(null); // Passed default to player data because it won't matter for clients
+        LocalPlayer lPlayer = mc.player;
+        ServerPlayer sPlayer = lPlayer.getServer().getPlayerList().getPlayer(lPlayer.getUUID());
+        GameType prevGameType = sPlayer.gameMode.getGameModeForPlayer();
+        String username = lPlayer.getName().getString();
+        AffectedPlayerData data = new AffectedPlayerData(prevGameType);
+        
         data.deathScreenTimer = (int) duration;
         affectedPlayers.put(username, data);
     }
