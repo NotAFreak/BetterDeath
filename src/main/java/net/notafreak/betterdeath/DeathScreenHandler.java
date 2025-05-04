@@ -104,10 +104,12 @@ public class DeathScreenHandler {
         }
     }
 
-    //required to easily get the position the player should spawn at
+    //get the position the player should spawn at and set them to spectator mode
     @SubscribeEvent
     public static void onPlayerRespawn(PlayerRespawnEvent event) {
         affectedPlayers.get(event.getEntity().getName().getString()).respawnPos = event.getEntity().position();
+
+        event.getEntity().getServer().getPlayerList().getPlayer(event.getEntity().getUUID()).setGameMode(GameType.SPECTATOR);
     }
 
     public static int ConstructColorHex(int R, int G, int B, int A) {
@@ -125,8 +127,6 @@ public class DeathScreenHandler {
         
         affectedPlayers.put(player.getName().getString(), new AffectedPlayerData(prevGameType));
         PacketHandler.sendToPlayer(new S2CdeathNotifyPacket(CommonConfig.deathScreenDuration.get()), player);
-
-        player.setGameMode(GameType.SPECTATOR);
     }
 
     // Used for client
