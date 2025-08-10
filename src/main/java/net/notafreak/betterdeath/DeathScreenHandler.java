@@ -10,6 +10,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
@@ -65,6 +67,7 @@ public class DeathScreenHandler {
     
 
     @SubscribeEvent
+    @OnlyIn(Dist.CLIENT)
     public static void onRenderOverlay(RenderGuiOverlayEvent.Pre event) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return; // Ensure the player instance exists
