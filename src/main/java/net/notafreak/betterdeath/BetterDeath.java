@@ -51,8 +51,7 @@ public class BetterDeath {
     @SubscribeEvent
     public void onPlayerDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
-            LOGGER.info("these are thrilling times, the player has died");
-            DeathScreenHandler.triggerDeathScreen(player);
+            DeathScreenHandler.triggerDeathScreenServer(player);
         }
     }
 

@@ -26,7 +26,7 @@ public class S2CdeathNotifyPacket {
     public void handle(Supplier<NetworkEvent.Context> context) {
         BetterDeath.LOGGER.debug("Client received that it should commit die!");
         context.get().enqueueWork(() -> {
-            DeathScreenHandler.triggerDeathScreen(ScreenLength);
+            DeathScreenHandler.triggerDeathScreenClient(ScreenLength);
         });
 
         context.get().setPacketHandled(true);

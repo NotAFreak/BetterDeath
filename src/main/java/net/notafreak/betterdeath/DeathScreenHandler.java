@@ -1,7 +1,7 @@
 package net.notafreak.betterdeath;
-
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -22,28 +22,34 @@ import net.notafreak.betterdeath.config.CommonConfig;
 import net.notafreak.betterdeath.network.PacketHandler;
 import net.notafreak.betterdeath.network.S2CdeathNotifyPacket;
 
+import net.notafreak.betterdeath.Utils;
+
 @Mod.EventBusSubscriber(modid = "betterdeath", bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class DeathScreenHandler {
-    
+    // Should only be used by the server/host
     public static final Map<String, AffectedPlayerData> affectedPlayers = new HashMap<>(); // Username, data
 
+    // Should only be used by the client for rendering
+    public static Boolean deathScreenActive = false;
+    public static float deathScreenRemainingTime = 0;
+
     @SubscribeEvent
+    @OnlyIn(Dist.DEDICATED_SERVER)
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
         String username = event.player.getName().getString();
         AffectedPlayerData data = affectedPlayers.get(username);
     
         if (data != null) {
-
             // Force the player to not be able to move
             if(!event.player.level().isClientSide()) {
                 ServerPlayer player = ((ServerPlayer)event.player);
                 player.setDeltaMovement(0, 0, 0);
-                if(affectedPlayers.get(username).respawnPos != null) {
-                    player.teleportTo(affectedPlayers.get(username).respawnPos.x, affectedPlayers.get(username).respawnPos.y, affectedPlayers.get(username).respawnPos.z);
+                if(data.respawnPos != null) {
+                    player.teleportTo(data.respawnPos.x, data.respawnPos.y, data.respawnPos.z);
                 }
                 player.setXRot(0);
                 player.setYRot(player.getRespawnAngle());
-                player.hurtMarked = true;
+                // player.hurtMarked = true;
             }
 
             if (data.deathScreenTimer <= 0) {
@@ -52,29 +58,26 @@ public class DeathScreenHandler {
                     player = ((ServerPlayer)event.player);
 
                     // Switch the player back to their previous gamemode
-                    player.setGameMode(affectedPlayers.get(username).previousGameType);
-                    BetterDeath.LOGGER.info("Reset to previous gamemode (" + affectedPlayers.get(username).previousGameType + ")");
+                    player.setGameMode(data.previousGameType);
+                    BetterDeath.LOGGER.info("Reset to previous gamemode (" + data.previousGameType + ")");
                     affectedPlayers.remove(username);
                 } else {
                     BetterDeath.LOGGER.info("death screen timer up but we're on the client");
                 }
-
             }
 
             data.deathScreenTimer--;
         }
     }
-    
 
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public static void onRenderOverlay(RenderGuiOverlayEvent.Pre event) {
+        if(!deathScreenActive) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return; // Ensure the player instance exists
 
-        String username = mc.player.getName().getString();
-        AffectedPlayerData data = affectedPlayers.get(username);
-        if (data != null) {
+        if (deathScreenRemainingTime > 0) {
             GuiGraphics guiGraphics = event.getGuiGraphics();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
@@ -87,7 +90,7 @@ public class DeathScreenHandler {
             guiGraphics.fill(
                 0, 0,
                 screenWidth, screenHeight,
-                ConstructColorHex(
+                Utils.ConstructColorHex(
                     ClientConfig.deathScreenR.get(),
                     ClientConfig.deathScreenG.get(),
                     ClientConfig.deathScreenB.get(),
@@ -98,54 +101,52 @@ public class DeathScreenHandler {
             // Reset posing
             guiGraphics.pose().translate(0, 0, -9000);
             RenderSystem.disableBlend();
-
-            // Pause sounds
             mc.getSoundManager().pause();
+            // Divide by 20 to convert from frame time to ticks time
+            deathScreenRemainingTime -= (event.getPartialTick() / 20);
         } else {
             // Resume sounds if the death screen is not active
             mc.getSoundManager().resume();
+            deathScreenRemainingTime = 0;
+            deathScreenActive = false;
         }
     }
 
     //get the position the player should spawn at and set them to spectator mode
     @SubscribeEvent
+    @OnlyIn(Dist.DEDICATED_SERVER)
     public static void onPlayerRespawn(PlayerRespawnEvent event) {
-        affectedPlayers.get(event.getEntity().getName().getString()).respawnPos = event.getEntity().position();
+        String playerName = event.getEntity().getName().getString();
+        UUID playerUuid = event.getEntity().getUUID();
 
-        event.getEntity().getServer().getPlayerList().getPlayer(event.getEntity().getUUID()).setGameMode(GameType.SPECTATOR);
+        if(!affectedPlayers.containsKey(playerName)) {
+            BetterDeath.LOGGER.info("Player respawn without being dead: " + playerName);
+            return;
+        }
+        affectedPlayers.get(playerName).respawnPos = event.getEntity().position();
+        // .get.get.get i love java standards
+        event.getEntity().getServer().getPlayerList().getPlayer(playerUuid).setGameMode(GameType.SPECTATOR);
     }
 
-    public static int ConstructColorHex(int R, int G, int B, int A) {
-        R = Math.max(0, Math.min(255, R));
-        G = Math.max(0, Math.min(255, G));
-        B = Math.max(0, Math.min(255, B));
-        A = Math.max(0, Math.min(255, A));
-        return (A << 24) | (R << 16) | (G << 8) | B;
-    }
-
-    // Used for server
-    public static void triggerDeathScreen(ServerPlayer player) {
+    // Used by server / host
+    public static void triggerDeathScreenServer(ServerPlayer player) {
         // Switch the player to spectator here
         GameType prevGameType = player.gameMode.getGameModeForPlayer();
         
         affectedPlayers.put(player.getName().getString(), new AffectedPlayerData(prevGameType));
         PacketHandler.sendToPlayer(new S2CdeathNotifyPacket(CommonConfig.deathScreenDuration.get()), player);
+        BetterDeath.LOGGER.info("Sent death packet to player: " + player.getName());
     }
 
-    // Used for client
-    public static void triggerDeathScreen(float duration) {
+    @OnlyIn(Dist.CLIENT)
+    public static void triggerDeathScreenClient(float duration) {
         Minecraft mc = Minecraft.getInstance();
-        if(mc.player == null) {
-            return;
-        }
+        if(mc.player == null) return;
+        if(deathScreenActive) return;
 
-        LocalPlayer lPlayer = mc.player;
-        ServerPlayer sPlayer = lPlayer.getServer().getPlayerList().getPlayer(lPlayer.getUUID());
-        GameType prevGameType = sPlayer.gameMode.getGameModeForPlayer();
-        String username = lPlayer.getName().getString();
-        AffectedPlayerData data = new AffectedPlayerData(prevGameType);
-        
-        data.deathScreenTimer = (int) duration;
-        affectedPlayers.put(username, data);
+        deathScreenActive = true;
+        // We use the duration that the server tells us, not the client's config.
+        deathScreenRemainingTime = duration;
+        BetterDeath.LOGGER.info("Client triggered death screen with duration " + duration);
     }
 }

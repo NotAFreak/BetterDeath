@@ -24,12 +24,14 @@ public class PacketHandler {
             .decoder(S2CdeathNotifyPacket::new)
             .consumerMainThread(S2CdeathNotifyPacket::handle)
             .add();
-        //    .encoder(S2CdeathNotifyPacket::encode, PacketDistributor.PLAYER);
+        BetterDeath.LOGGER.info("Registered S2CdeathNotifyPacket!");
     }
 
+    /*
     public static void sendToServer(Object msg) {
         INSTANCE.send(PacketDistributor.SERVER.noArg(),msg);
     }
+    */
 
     public static void sendToPlayer(Object msg, ServerPlayer player) {
         INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), msg);
