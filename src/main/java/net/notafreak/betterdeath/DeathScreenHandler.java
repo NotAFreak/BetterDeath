@@ -7,7 +7,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
 import net.minecraftforge.api.distmarker.Dist;
@@ -17,12 +16,11 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+
 import net.notafreak.betterdeath.config.ClientConfig;
 import net.notafreak.betterdeath.config.CommonConfig;
 import net.notafreak.betterdeath.network.PacketHandler;
 import net.notafreak.betterdeath.network.S2CdeathNotifyPacket;
-
-import net.notafreak.betterdeath.Utils;
 
 @Mod.EventBusSubscriber(modid = "betterdeath", bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class DeathScreenHandler {
@@ -49,7 +47,6 @@ public class DeathScreenHandler {
                 }
                 player.setXRot(0);
                 player.setYRot(player.getRespawnAngle());
-                // player.hurtMarked = true;
             }
 
             if (data.deathScreenTimer <= 0) {
@@ -129,10 +126,9 @@ public class DeathScreenHandler {
     }
 
     // Used by server / host
+    // Switch the player to spectator here, and notify the client how to handle the death
     public static void triggerDeathScreenServer(ServerPlayer player) {
-        // Switch the player to spectator here
-        GameType prevGameType = player.gameMode.getGameModeForPlayer();
-        
+        GameType prevGameType = player.gameMode.getGameModeForPlayer();        
         affectedPlayers.put(player.getName().getString(), new AffectedPlayerData(prevGameType));
         PacketHandler.sendToPlayer(new S2CdeathNotifyPacket(CommonConfig.deathScreenDuration.get()), player);
         BetterDeath.LOGGER.info("Sent death packet to player: " + player.getName());
@@ -145,8 +141,7 @@ public class DeathScreenHandler {
         if(deathScreenActive) return;
 
         deathScreenActive = true;
-        // We use the duration that the server tells us, not the client's config.
         deathScreenRemainingTime = duration;
-        BetterDeath.LOGGER.info("Client triggered death screen with duration " + duration);
+        BetterDeath.LOGGER.info("Client triggered death screen with duration: " + duration);
     }
 }
