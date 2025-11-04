@@ -2,27 +2,26 @@ package net.notafreak.betterdeath;
 
 
 
+import org.slf4j.Logger;
+
+import com.mojang.logging.LogUtils;
+
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameRules;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.GameRules;
-
-import com.mojang.logging.LogUtils;
-
-import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.notafreak.betterdeath.config.ClientConfig;
 import net.notafreak.betterdeath.config.CommonConfig;
-
-import org.slf4j.Logger;
 
 @Mod(BetterDeath.MODID)
 public class BetterDeath {
@@ -48,6 +47,7 @@ public class BetterDeath {
     private void commonSetup(final FMLCommonSetupEvent event) {
 
     }
+    
     @SubscribeEvent
     public void onPlayerDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
@@ -62,7 +62,9 @@ public class BetterDeath {
 
         if (overworld != null) {
             // Set the instant respawn gamerule
-            overworld.getGameRules().getRule(GameRules.RULE_DO_IMMEDIATE_RESPAWN).set(true, event.getServer());
+            if(CommonConfig.forceImmediateRespawn.get()) {
+                overworld.getGameRules().getRule(GameRules.RULE_DO_IMMEDIATE_RESPAWN).set(true, event.getServer());
+            }
         }
     }
 }
