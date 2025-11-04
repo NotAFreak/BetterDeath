@@ -27,7 +27,7 @@ public class DeathScreenHandler {
     // Should only be used by the server/host
     public static final Map<String, AffectedPlayerData> affectedPlayers = new HashMap<>(); // Username, data
 
-    // Should only be used by the client for rendering
+    // Should only be used by the client for rendering. Again, ONLY BY THE CLIENT FOR RENDERING.
     public static Boolean deathScreenActive = false;
     public static float deathScreenRemainingTime = 0;
 
@@ -36,35 +36,32 @@ public class DeathScreenHandler {
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
         String username = event.player.getName().getString();
         AffectedPlayerData data = affectedPlayers.get(username);
-    
-        if (data != null) {
-            // Force the player to not be able to move
-            if(!event.player.level().isClientSide()) {
-                ServerPlayer player = ((ServerPlayer)event.player);
-                player.setDeltaMovement(0, 0, 0);
-                if(data.respawnPos != null) {
-                    player.teleportTo(data.respawnPos.x, data.respawnPos.y, data.respawnPos.z);
-                }
-                player.setXRot(0);
-                player.setYRot(player.getRespawnAngle());
+        if(data == null) return;
+
+        // Force the player to not be able to move
+        if(!event.player.level().isClientSide()) {
+            ServerPlayer player = ((ServerPlayer)event.player);
+            player.setDeltaMovement(0, 0, 0);
+            if(data.respawnPos != null) {
+                player.teleportTo(data.respawnPos.x, data.respawnPos.y, data.respawnPos.z);
             }
-
-            if (data.deathScreenTimer <= 0) {
-                ServerPlayer player = null;
-                if(!event.player.level().isClientSide()) {
-                    player = ((ServerPlayer)event.player);
-
-                    // Switch the player back to their previous gamemode
-                    player.setGameMode(data.previousGameType);
-                    BetterDeath.LOGGER.info("Reset to previous gamemode (" + data.previousGameType + ")");
-                    affectedPlayers.remove(username);
-                } else {
-                    BetterDeath.LOGGER.info("death screen timer up but we're on the client");
-                }
-            }
-
-            data.deathScreenTimer--;
+            player.setXRot(0);
+            player.setYRot(player.getRespawnAngle());
         }
+        if (data.deathScreenTimer <= 0) {
+            ServerPlayer player = null;
+            if(!event.player.level().isClientSide()) {
+                player = ((ServerPlayer)event.player);
+                // Switch the player back to their previous gamemode
+                player.setGameMode(data.previousGameType);
+                BetterDeath.LOGGER.info("Reset to previous gamemode (" + data.previousGameType + ")");
+                affectedPlayers.remove(username);
+            } else {
+                BetterDeath.LOGGER.info("death screen timer up but we're on the client");
+            }
+        }
+
+        data.deathScreenTimer--;
     }
 
     @SubscribeEvent
@@ -100,7 +97,7 @@ public class DeathScreenHandler {
             RenderSystem.disableBlend();
             mc.getSoundManager().pause();
             // Divide by 20 to convert from frame time to ticks time
-            deathScreenRemainingTime -= (event.getPartialTick() / 20);
+            deathScreenRemainingTime -= (event.getPartialTick() / 20.0f);
         } else {
             // Resume sounds if the death screen is not active
             mc.getSoundManager().resume();
