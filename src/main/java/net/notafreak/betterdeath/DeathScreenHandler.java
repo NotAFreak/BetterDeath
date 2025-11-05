@@ -16,7 +16,6 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-
 import net.notafreak.betterdeath.config.ClientConfig;
 import net.notafreak.betterdeath.config.CommonConfig;
 import net.notafreak.betterdeath.network.PacketHandler;
@@ -71,39 +70,38 @@ public class DeathScreenHandler {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return; // Ensure the player instance exists
 
-        if (deathScreenRemainingTime > 0) {
-            GuiGraphics guiGraphics = event.getGuiGraphics();
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-
-            // Draw a black rectangle across the entire screen
-            int screenWidth = mc.getWindow().getGuiScaledWidth();
-            int screenHeight = mc.getWindow().getGuiScaledHeight();
-            // Try and render over everything
-            guiGraphics.pose().translate(0, 0, 9000);
-            guiGraphics.fill(
-                0, 0,
-                screenWidth, screenHeight,
-                Utils.ConstructColorHex(
-                    ClientConfig.deathScreenR.get(),
-                    ClientConfig.deathScreenG.get(),
-                    ClientConfig.deathScreenB.get(),
-                    255
-                )
-            );
-
-            // Reset posing
-            guiGraphics.pose().translate(0, 0, -9000);
-            RenderSystem.disableBlend();
-            mc.getSoundManager().pause();
-            // Divide by 20 to convert from frame time to ticks time
-            deathScreenRemainingTime -= (event.getPartialTick() / 20.0f);
-        } else {
-            // Resume sounds if the death screen is not active
+        if (deathScreenRemainingTime <= 0) {
             mc.getSoundManager().resume();
             deathScreenRemainingTime = 0;
             deathScreenActive = false;
+            return;
         }
+        GuiGraphics guiGraphics = event.getGuiGraphics();
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+
+        // Draw a black rectangle across the entire screen
+        int screenWidth = mc.getWindow().getGuiScaledWidth();
+        int screenHeight = mc.getWindow().getGuiScaledHeight();
+        // Try and render over everything
+        guiGraphics.pose().translate(0, 0, 9000);
+        guiGraphics.fill(
+            0, 0,
+            screenWidth, screenHeight,
+            Utils.ConstructColorHex(
+                ClientConfig.deathScreenR.get(),
+                ClientConfig.deathScreenG.get(),
+                ClientConfig.deathScreenB.get(),
+                255
+            )
+        );
+
+        // Reset posing
+        guiGraphics.pose().translate(0, 0, -9000);
+        RenderSystem.disableBlend();
+        mc.getSoundManager().pause();
+        // Divide by 20 to convert from frame time to ticks time
+        deathScreenRemainingTime -= (event.getPartialTick() / 20.0f);
     }
 
     //get the position the player should spawn at and set them to spectator mode

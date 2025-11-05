@@ -25,8 +25,6 @@ public class PacketHandler {
     }
     public static void sendToPlayer(Object msg, ServerPlayer player) {
         INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), msg);
-    }
-    public static void sendToAllClients(Object msg) {
-        INSTANCE.send(PacketDistributor.ALL.noArg(), msg);
+        BetterDeath.LOGGER.info("Sent packet to player: " + player.getName().getString());
     }
 }
