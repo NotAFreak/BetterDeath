@@ -1,20 +1,20 @@
 package net.notafreak.betterdeath;
-import net.minecraft.world.level.GameType;
-import net.minecraft.world.phys.Vec3;
 
-import net.notafreak.betterdeath.config.CommonConfig;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.GameMode;
+
 public class AffectedPlayerData {
     public int deathScreenTimer = 0; // In game ticks
-    public GameType previousGameType = GameType.SURVIVAL;
-    public Vec3 respawnPos;
+    public GameMode previousGameType = GameMode.SURVIVAL;
+    public Vec3d respawnPos;
     
-    public AffectedPlayerData(GameType prevGameType) {
+    public AffectedPlayerData(GameMode prevGameType) {
         if(prevGameType == null) {
             // Default
-            previousGameType = GameType.SURVIVAL;
+            previousGameType = GameMode.SURVIVAL;
         } else {
             previousGameType = prevGameType;
         }
-        deathScreenTimer = CommonConfig.deathScreenDuration.get();
+        // deathScreenTimer = CommonConfig.deathScreenDuration.get();
     }
 }
