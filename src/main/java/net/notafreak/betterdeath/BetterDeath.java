@@ -15,8 +15,6 @@ public class BetterDeath implements ModInitializer {
 	public void onInitialize() {
 		CommonModConfig.Register();
 		CommonModConfig.Load();
-
-		LOGGER.info("Hello Fabric world!");
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
 			if(!(entity instanceof PlayerEntity)) return;
 			PlayerEntity player = (PlayerEntity)entity;

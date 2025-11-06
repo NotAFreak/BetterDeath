@@ -14,6 +14,8 @@ public class ClientDeathScreenHandler {
     }
 
     private static void Render(DrawContext context, float tickDelta) {
+        if(!deathScreenActive) return;
+
         int color = Utils.ConstructColorHex(
             ClientModConfig.config.deathScreenR, 
             ClientModConfig.config.deathScreenG, 
@@ -22,5 +24,10 @@ public class ClientDeathScreenHandler {
         );
         context.fill(0, 0, 100, 100, color);
         
+        deathScreenRemainingTime -= tickDelta;
+        if(deathScreenRemainingTime <= 0) {
+            deathScreenActive = false;
+            deathScreenRemainingTime = 0;
+        }
     }
 }
