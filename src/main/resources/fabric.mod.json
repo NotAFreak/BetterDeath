@@ -3,15 +3,15 @@
 	"id": "betterdeath",
 	"version": "${version}",
 	"name": "BetterDeath",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Basic mod that alters the death system",
 	"authors": [
-		"Me!"
+		"NotAFreak"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
 		"sources": "https://github.com/FabricMC/fabric-example-mod"
 	},
-	"license": "CC0-1.0",
+	"license": "All Rights Reserved",
 	"icon": "assets/betterdeath/icon.png",
 	"environment": "*",
 	"entrypoints": {
@@ -22,13 +22,6 @@
 			"net.notafreak.betterdeath.BetterDeathClient"
 		]
 	},
-	"mixins": [
-		"betterdeath.mixins.json",
-		{
-			"config": "betterdeath.client.mixins.json",
-			"environment": "client"
-		}
-	],
 	"depends": {
 		"fabricloader": ">=0.17.3",
 		"minecraft": "~1.20.1",
