@@ -30,4 +30,9 @@ public class ClientDeathScreenHandler {
             deathScreenRemainingTime = 0;
         }
     }
+
+    public static void Trigger(float duration) {
+        deathScreenRemainingTime = duration;
+        deathScreenActive = true;
+    }
 }

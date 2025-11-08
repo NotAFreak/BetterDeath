@@ -1,6 +1,7 @@
 package net.notafreak.betterdeath;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.notafreak.betterdeath.network.ClientPacketHandler;
 
 public class BetterDeathClient implements ClientModInitializer {
 	@Override
@@ -9,5 +10,6 @@ public class BetterDeathClient implements ClientModInitializer {
 		ClientModConfig.Load();
 
 		ClientDeathScreenHandler.Register();
+		ClientPacketHandler.RegisterS2Cpackets();
 	}
 }
