@@ -1,0 +1,34 @@
+{
+	"schemaVersion": 1,
+	"id": "betterdeath",
+	"version": "${version}",
+	"name": "BetterDeath",
+	"description": "Basic mod that alters the death system",
+	"authors": [
+		"NotAFreak"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "All Rights Reserved",
+	"icon": "assets/betterdeath/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.notafreak.betterdeath.BetterDeath"
+		],
+		"client": [
+			"net.notafreak.betterdeath.BetterDeathClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.17.3",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}

@@ -1,48 +1,53 @@
 package net.notafreak.betterdeath;
+
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.GameRules;
+import net.notafreak.betterdeath.network.ServerPacketHandler;
+
 import org.slf4j.Logger;
-import com.mojang.logging.LogUtils;
+import org.slf4j.LoggerFactory;
 
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.GameRules;
+public class BetterDeath implements ModInitializer {
+	public static final String MOD_ID = "betterdeath";
+	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
+	// man i love how clean fabric's initialization and general code is.
+	@Override
+	public void onInitialize() {
+		CommonModConfig.Register();
+		CommonModConfig.Load();
+		ServerPacketHandler.RegisterC2Spackets();
+		ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStart);		
+		ServerTickEvents.END_SERVER_TICK.register(this::onServerTick);
+		ServerLivingEntityEvents.AFTER_DEATH.register(this::onDeath);
+	}
 
-import net.notafreak.betterdeath.config.ClientConfig;
-import net.notafreak.betterdeath.config.CommonConfig;
-
-@Mod(BetterDeath.MODID)
-public class BetterDeath {
-    public static final String NAME = "Better Death";
-    public static final String MODID = "betterdeath";
-    public static final Logger LOGGER = LogUtils.getLogger();
-
-    public BetterDeath() {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC, MODID + "-client.toml");
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, CommonConfig.SPEC, MODID + "-common.toml");
-        MinecraftForge.EVENT_BUS.register(this);
-    }
-    
-    @SubscribeEvent
-    public void onPlayerDeath(LivingDeathEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player) {
-            DeathScreenHandler.triggerDeathScreenServer(player);
-        }
-    }
-
-    @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event) {
-        ServerLevel overworld = event.getServer().overworld();
-        if (overworld != null) {
-            if(CommonConfig.forceImmediateRespawn.get()) {
-                overworld.getGameRules().getRule(GameRules.RULE_DO_IMMEDIATE_RESPAWN).set(true, event.getServer());
-            }
-        }
-    }
+	private void onServerStart(MinecraftServer server) {
+		if(CommonModConfig.config.forceImmediateRespawn) {
+			server.getGameRules().get(GameRules.DO_IMMEDIATE_RESPAWN).set(true, server);
+		}
+	}
+	private void onServerTick(MinecraftServer server) {
+		for(ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+			ServerDeathScreenHandler.onPlayerTick(player);
+		}
+	}
+	private void onDeath(LivingEntity entity, DamageSource source) {
+		if(!(entity instanceof ServerPlayerEntity)) {
+			if((entity instanceof PlayerEntity)) {
+				LOGGER.warn("Player died but wasn't an instance of a server player entity!");
+				return;
+			}
+			return;
+		}
+		ServerDeathScreenHandler.Trigger((ServerPlayerEntity)entity);
+	}
 }
