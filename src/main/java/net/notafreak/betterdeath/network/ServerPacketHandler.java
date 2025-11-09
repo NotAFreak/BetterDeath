@@ -1,6 +1,5 @@
 package net.notafreak.betterdeath.network;
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
@@ -10,7 +9,7 @@ import net.notafreak.betterdeath.BetterDeath;
 
 public class ServerPacketHandler {
 	public static final Identifier DEATH_ID = new Identifier(BetterDeath.MOD_ID, "death");
-	
+
 	public static void RegisterC2Spackets() {
 
 	}

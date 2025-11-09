@@ -20,7 +20,7 @@ public class ClientDeathScreenHandler {
             ClientModConfig.config.deathScreenR, 
             ClientModConfig.config.deathScreenG, 
             ClientModConfig.config.deathScreenB, 
-            100
+            255
         );
         context.fill(0, 0, 100, 100, color);
         
