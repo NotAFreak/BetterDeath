@@ -1,25 +1,28 @@
 package net.notafreak.betterdeath.config;
-
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.ModConfigSpec;
+import net.notafreak.betterdeath.BetterDeath;
 import org.joml.Vector2i;
-
 import java.util.Locale;
 
 public class ClientConfig {
-	public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
-	public static ForgeConfigSpec SPEC = null;
+	public static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
+	public static ModConfigSpec SPEC = null;
 
     // Color config
-	public static ForgeConfigSpec.ConfigValue<Integer> deathScreenR;
-	public static ForgeConfigSpec.ConfigValue<Integer> deathScreenG;
-	public static ForgeConfigSpec.ConfigValue<Integer> deathScreenB;
+	public static ModConfigSpec.ConfigValue<Integer> deathScreenR;
+	public static ModConfigSpec.ConfigValue<Integer> deathScreenG;
+	public static ModConfigSpec.ConfigValue<Integer> deathScreenB;
 
     // Texture config
-    public static ForgeConfigSpec.ConfigValue<Boolean> deathScreenTextureActive;
-    public static ForgeConfigSpec.ConfigValue<Boolean> deathScreenTextureIsFilepath;
-    public static ForgeConfigSpec.ConfigValue<String> deathScreenTexture;
-    public static ForgeConfigSpec.ConfigValue<String> deathScreenTexturePosition;
-    public static ForgeConfigSpec.ConfigValue<String> deathScreenTextureSize;
+    public static ModConfigSpec.ConfigValue<Boolean> deathScreenTextureActive;
+    public static ModConfigSpec.ConfigValue<Boolean> deathScreenTextureIsFilepath;
+    public static ModConfigSpec.ConfigValue<String> deathScreenTexture;
+    public static ModConfigSpec.ConfigValue<String> deathScreenTexturePosition;
+    public static ModConfigSpec.ConfigValue<String> deathScreenTextureSize;
+
+    public static ModConfigSpec.ConfigValue<Double> deathScreenTextureFadeInTime;
+    public static ModConfigSpec.ConfigValue<Double> deathScreenTextureFadeOutTime;
     public  static  Vector2i GetPosition() {
         Vector2i pos = new Vector2i();
         String sanitized = deathScreenTexturePosition.get().toLowerCase(Locale.ROOT).replace(" ", "");
@@ -36,8 +39,6 @@ public class ClientConfig {
         size.y = Integer.parseInt(tokens[1]);
         return  size;
     }
-    public static ForgeConfigSpec.ConfigValue<Double> deathScreenTextureFadeInTime;
-    public static ForgeConfigSpec.ConfigValue<Double> deathScreenTextureFadeOutTime;
 
 	static {
 		BUILDER.push("Color Settings");

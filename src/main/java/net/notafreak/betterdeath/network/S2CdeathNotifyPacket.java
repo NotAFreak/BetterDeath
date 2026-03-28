@@ -1,30 +1,49 @@
 package net.notafreak.betterdeath.network;
 
-import java.util.function.Supplier;
-
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
+import net.neoforged.neoforge.network.registration.HandlerThread;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.notafreak.betterdeath.BetterDeath;
-import net.notafreak.betterdeath.DeathScreenHandler;
-public class S2CdeathNotifyPacket {
-    private final float ScreenLength;
 
-    public S2CdeathNotifyPacket(float ScreenLength) {
-        this.ScreenLength = ScreenLength;
+@EventBusSubscriber(modid = BetterDeath.MODID)
+public record S2CdeathNotifyPacket(float ScreenLength) implements CustomPacketPayload {
+    public static final String PROTOCOL_VERSION = "1";
+    public static final CustomPacketPayload.Type<S2CdeathNotifyPacket> TYPE =
+            new CustomPacketPayload.Type<>(
+                    ResourceLocation.fromNamespaceAndPath(BetterDeath.MODID, "main")
+            );
+
+    public static final StreamCodec<ByteBuf, S2CdeathNotifyPacket> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.FLOAT,
+            S2CdeathNotifyPacket::ScreenLength,
+            S2CdeathNotifyPacket::new
+    );
+
+    @SubscribeEvent // on the mod event bus
+    public static void register(final RegisterPayloadHandlersEvent event) {
+        final PayloadRegistrar registrar = event.registrar(PROTOCOL_VERSION)
+                .executesOn(HandlerThread.MAIN);
+        registrar.playToClient(
+                S2CdeathNotifyPacket.TYPE,
+                S2CdeathNotifyPacket.STREAM_CODEC,
+                new DirectionalPayloadHandler<>(
+                        PacketHandler::handleOnClient,
+                        PacketHandler::handleOnServer
+                )
+        );
+        BetterDeath.LOGGER.info("Registered packet!");
     }
-    public S2CdeathNotifyPacket(FriendlyByteBuf buffer) {
-        this(buffer.readFloat());
-    }
-    public void encode(FriendlyByteBuf buffer) {
-        buffer.writeFloat(this.ScreenLength);
-    }
-    // This is handled on the client, when the server sends this packet to the client
-    public void handle(Supplier<NetworkEvent.Context> context) {
-        BetterDeath.LOGGER.debug("Client received that it should commit die!");
-        context.get().enqueueWork(() -> {
-            DeathScreenHandler.triggerDeathScreenClient(ScreenLength);
-        });
-        context.get().setPacketHandled(true);
+    @Override
+    public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }
  
