@@ -48,6 +48,7 @@ public class ClientConfig {
 		deathScreenB = BUILDER.comment("Blue value of the death overlay").defineInRange("Death screen B", 0, 0, 255);
 		BUILDER.pop();
 
+        /*
         BUILDER.push("Texture Settings");
         deathScreenTextureActive = BUILDER.comment("Whether or not to display a texture on the death screen").define("Death Screen Texture Active", false);
         deathScreenTextureIsFilepath = BUILDER.comment("Whether or not the texture is an actual file path on your system").define("Death Screen Texture Is File Path", false);
@@ -59,6 +60,7 @@ public class ClientConfig {
         deathScreenTextureFadeInTime = BUILDER.comment("Time for the death screen to fade in for").define("Death Screen texture fade in time", 0.0);
         deathScreenTextureFadeOutTime = BUILDER.comment("Time for the death screen to fade out for").define("Death Screen texture fade out time", 0.5);
         BUILDER.pop();
+        */
 		SPEC = BUILDER.build();
 	}
 }
