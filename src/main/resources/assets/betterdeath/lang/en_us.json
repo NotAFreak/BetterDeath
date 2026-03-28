@@ -1,5 +1,23 @@
 {
   "betterdeath.configuration.title": "Better Death Configs",
-  "betterdeath.configuration.section.betterdeath.common.toml": "Better Death Configs",
-  "betterdeath.configuration.section.betterdeath.common.toml.title": "Better Death Configs",
+  "betterdeath.configuration.section.betterdeath.common.toml": "Common Configs",
+  "betterdeath.configuration.section.betterdeath.common.toml.title": "Common Configs",
+  "betterdeath.configuration.section.betterdeath.client.toml": "Client Configs",
+  "betterdeath.configuration.section.betterdeath.client.toml.title": "Client Configs",
+  "betterdeath.configuration.General Settings": "General Settings",
+  "betterdeath.configuration.deathScreenDuration": "Death Screen Duration",
+  "betterdeath.configuration.forceImmediateRespawn": "Force Immediate Respawn",
+  "betterdeath.configuration.Color Settings": "Color",
+  "betterdeath.configuration.Death screen R": "Color Red",
+  "betterdeath.configuration.Death screen G": "Color Green",
+  "betterdeath.configuration.Death screen B": "Color Blue",
+
+  "betterdeath.configuration.Texture Settings": "Texture",
+  "betterdeath.configuration.Death Screen Texture Active": "Texture Active",
+  "betterdeath.configuration.Death Screen Texture Is File Path": "Texture Is File Path",
+  "betterdeath.configuration.Death Screen Texture": "Texture MRL",
+  "betterdeath.configuration.Death Screen Texture Position": "Position",
+  "betterdeath.configuration.Death Screen Texture Size": "Size (pixels)",
+  "betterdeath.configuration.Death Screen texture fade in time": "Fade-in time",
+  "betterdeath.configuration.Death Screen texture fade out time": "Fade-out time"
 }
