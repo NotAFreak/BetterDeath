@@ -15,6 +15,7 @@ public class AffectedPlayerData {
         } else {
             previousGameType = prevGameType;
         }
-        deathScreenTimer = CommonConfig.deathScreenDuration.get();
+        // Convert seconds to ticks
+        deathScreenTimer = CommonConfig.deathScreenDuration.get() * 20;
     }
 }

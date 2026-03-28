@@ -9,19 +9,21 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.notafreak.betterdeath.config.ClientConfig;
 import net.notafreak.betterdeath.config.CommonConfig;
 import net.notafreak.betterdeath.network.PacketHandler;
 import net.notafreak.betterdeath.network.S2CdeathNotifyPacket;
 
-@Mod.EventBusSubscriber(modid = "betterdeath", bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = BetterDeath.MODID)
 public class DeathScreenHandler {
     // Should only be used by the server/host
     public static final Map<String, AffectedPlayerData> affectedPlayers = new HashMap<>(); // Username, data
@@ -32,14 +34,14 @@ public class DeathScreenHandler {
 
     @SubscribeEvent
     @OnlyIn(Dist.DEDICATED_SERVER)
-    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        String username = event.player.getName().getString();
+    public static void onPlayerTick(PlayerTickEvent event) {
+        String username = event.getEntity().getName().getString();
         AffectedPlayerData data = affectedPlayers.get(username);
         if(data == null) return;
 
         // Force the player to not be able to move
-        if(!event.player.level().isClientSide()) {
-            ServerPlayer player = ((ServerPlayer)event.player);
+        if(!event.getEntity().level().isClientSide()) {
+            ServerPlayer player = ((ServerPlayer)event.getEntity());
             player.setDeltaMovement(0, 0, 0);
             if(data.respawnPos != null) {
                 player.teleportTo(data.respawnPos.x, data.respawnPos.y, data.respawnPos.z);
@@ -49,8 +51,8 @@ public class DeathScreenHandler {
         }
         if (data.deathScreenTimer <= 0) {
             ServerPlayer player = null;
-            if(!event.player.level().isClientSide()) {
-                player = ((ServerPlayer)event.player);
+            if(!event.getEntity().level().isClientSide()) {
+                player = ((ServerPlayer)event.getEntity());
                 // Switch the player back to their previous gamemode
                 player.setGameMode(data.previousGameType);
                 BetterDeath.LOGGER.info("Reset to previous gamemode (" + data.previousGameType + ")");
@@ -65,7 +67,7 @@ public class DeathScreenHandler {
 
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
-    public static void onRenderOverlay(RenderGuiOverlayEvent.Pre event) {
+    public static void onRenderOverlay(RenderGuiEvent.Pre event) {
         if(!deathScreenActive) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return; // Ensure the player instance exists
@@ -100,14 +102,13 @@ public class DeathScreenHandler {
         guiGraphics.pose().translate(0, 0, -9000);
         RenderSystem.disableBlend();
         mc.getSoundManager().pause();
-        // Divide by 20 to convert from frame time to ticks time
-        deathScreenRemainingTime -= (event.getPartialTick() / 20.0f);
+        deathScreenRemainingTime -= (event.getPartialTick().getRealtimeDeltaTicks());
     }
 
     //get the position the player should spawn at and set them to spectator mode
     @SubscribeEvent
     @OnlyIn(Dist.DEDICATED_SERVER)
-    public static void onPlayerRespawn(PlayerRespawnEvent event) {
+    public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
         String playerName = event.getEntity().getName().getString();
         UUID playerUuid = event.getEntity().getUUID();
 
@@ -123,9 +124,9 @@ public class DeathScreenHandler {
     // Used by server / host
     // Switch the player to spectator here, and notify the client how to handle the death
     public static void triggerDeathScreenServer(ServerPlayer player) {
-        GameType prevGameType = player.gameMode.getGameModeForPlayer();        
+        GameType prevGameType = player.gameMode.getGameModeForPlayer();
         affectedPlayers.put(player.getName().getString(), new AffectedPlayerData(prevGameType));
-        PacketHandler.sendToPlayer(new S2CdeathNotifyPacket(CommonConfig.deathScreenDuration.get()), player);
+        PacketDistributor.sendToPlayer(player, new S2CdeathNotifyPacket(CommonConfig.deathScreenDuration.get()));
         BetterDeath.LOGGER.info("Sent death packet to player: " + player.getName());
     }
 
