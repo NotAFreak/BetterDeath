@@ -102,8 +102,7 @@ public class DeathScreenHandler {
         guiGraphics.pose().translate(0, 0, -9000);
         RenderSystem.disableBlend();
         mc.getSoundManager().pause();
-        // Divide by 20 to convert from frame time to ticks time
-        deathScreenRemainingTime -= (event.getPartialTick().getRealtimeDeltaTicks() / 20.0f);
+        deathScreenRemainingTime -= (event.getPartialTick().getRealtimeDeltaTicks());
     }
 
     //get the position the player should spawn at and set them to spectator mode
@@ -125,7 +124,7 @@ public class DeathScreenHandler {
     // Used by server / host
     // Switch the player to spectator here, and notify the client how to handle the death
     public static void triggerDeathScreenServer(ServerPlayer player) {
-        GameType prevGameType = player.gameMode.getGameModeForPlayer();        
+        GameType prevGameType = player.gameMode.getGameModeForPlayer();
         affectedPlayers.put(player.getName().getString(), new AffectedPlayerData(prevGameType));
         PacketDistributor.sendToPlayer(player, new S2CdeathNotifyPacket(CommonConfig.deathScreenDuration.get()));
         BetterDeath.LOGGER.info("Sent death packet to player: " + player.getName());
